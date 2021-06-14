@@ -29,85 +29,122 @@ public final class Knapsack {
         var foodsMaxDistanceFirstPart = 0
 
         
-        if maxWeight > 250 {
-            drinkss.sort {
-                Float16($0.value) / Float16($0.weight) >= Float16($1.value) / Float16($1.weight)
-            }
-            foodss.sort {
-                Float16($0.value) / Float16($0.weight) >= Float16($1.value) / Float16($1.weight)            }
+        
+//        if maxWeight > 250 {
+//            drinkss.sort {
+//                Float16($0.value) / Float16($0.weight) > Float16($1.value) / Float16($1.weight)
+//            }
+//            foodss.sort {
+//                Float16($0.value) / Float16($0.weight) > Float16($1.value) / Float16($1.weight)            }
 //            print(drinkss)
 //            print(foodss)
-            
-            while maxWeightt > 250 {
-                if drinksMaxDistanceFirstPart <= foodsMaxDistanceFirstPart {
-                    drinksMaxDistanceFirstPart += drinkss[0].value
-                    maxWeightt -= drinkss[0].weight
-                    drinkss.removeFirst()
-                } else {
-                    foodsMaxDistanceFirstPart += foodss[0].value
-                    maxWeightt -= foodss[0].weight
-                    foodss.removeFirst()
-                }
-            }
-            
-        }
+//
+//            while maxWeightt > 250 {
+//                if drinksMaxDistanceFirstPart <= foodsMaxDistanceFirstPart {
+//                    drinksMaxDistanceFirstPart += drinkss[0].value
+//                    maxWeightt -= drinkss[0].weight
+//                    drinkss.removeFirst()
+//                } else {
+//                    foodsMaxDistanceFirstPart += foodss[0].value
+//                    maxWeightt -= foodss[0].weight
+//                    foodss.removeFirst()
+//                }
+//            }
+//
+//        }
     
         drinkss.insert(Supply(0,0), at: 0)
         foodss.insert(Supply(0,0), at: 0)
+        
+        var drinkTable = Array(repeating: Array(repeating: 0, count: maxWeight + 1), count: drinks.count + 1)
+        var foodTable = Array(repeating: Array(repeating: 0, count: maxWeight + 1), count: foods.count + 1)
+        
+        for d in 1..<drinkTable.count {
+            for w in 1..<drinkTable[d].count {
+                if w < drinkss[d].weight {
+                    drinkTable[d][w] = drinkTable[d-1][w]
+                } else {
+                    drinkTable[d][w] = max(drinkTable[d-1][w], drinkss[d].value + drinkTable[d-1][w - drinkss[d].weight])
+                }
+            }
+        }
+        
+        for f in 1..<foodTable.count {
+            for w in 1..<foodTable[f].count {
+                if w < foodss[f].weight {
+                    foodTable[f][w] = foodTable[f-1][w]
+                } else {
+                    foodTable[f][w] = max(foodTable[f-1][w], foodss[f].value + foodTable[f-1][w - foodss[f].weight])
+                }
+            }
+        }
+        
+        for weight in 1..<maxWeight {
+            
+            drinksMaxWeight = weight
+            foodsMaxWeight = maxWeightt - weight
+            
+            drinksMaxDistance = max(drinksMaxDistance, drinkTable[drinkss.count-1][drinksMaxWeight])
+            
+            foodsMaxDistance = max(foodsMaxDistance, foodTable[foodss.count-1][foodsMaxWeight])
+            
+            maxDistance = max(maxDistance, min(drinksMaxDistanceFirstPart + drinksMaxDistance, foodsMaxDistanceFirstPart + foodsMaxDistance))
+            
+            drinksMaxDistance = 0
+            foodsMaxDistance = 0
+            
+        }
 
         
         
        // if maxWeight < 100 {
-            for weight in 1..<maxWeightt {
-                drinksMaxWeight = weight
-                foodsMaxWeight = maxWeightt - weight
-                
-                // [foodOrDrinkNumber[weight:distance]]
-                var drinkTable: [Int:[Int:Int]] = [0:[:]]
-                var foodTable: [Int:[Int:Int]] = [0:[:]]
-                for i in 1...drinksMaxWeight {
-                    drinkTable[0]![i] = 0
-                }
-                for i in 1...foodsMaxWeight {
-                    foodTable[0]![i] = 0
-                }
-                
-                for drinkN in 1..<drinkss.count {
-                    drinkTable[drinkN] = [:]
-                    for w in 1...drinksMaxWeight {
-                        if w < drinkss[drinkN].weight {
-                            drinkTable[drinkN]![w] = drinkTable[drinkN - 1]![w]!
-                        } else {
-                            drinkTable[drinkN]![w] = max(drinkTable[drinkN - 1]![w]!, (drinkss[drinkN].value + ((drinkTable[drinkN - 1]![w - drinkss[drinkN].weight]) ?? 0)))
-                        }
-               
-                    }
-                }
-                
-                drinksMaxDistance = max(drinksMaxDistance, drinkTable[drinkss.count-1]![drinksMaxWeight]!)
-                
-                for foodN in 1..<foodss.count {
-                    foodTable[foodN] = [:]
-                    for w in 1...foodsMaxWeight {
-                        if w < foodss[foodN].weight {
-                            foodTable[foodN]![w] = foodTable[foodN - 1]![w]!
-                        } else {
-                            foodTable[foodN]![w] = max(foodTable[foodN - 1]![w]!, (foodss[foodN].value + ((foodTable[foodN - 1]![w - foodss[foodN].weight]) ?? 0)))
-                        }
-                        
-                    }
-                }
-                
-                foodsMaxDistance = max(foodsMaxDistance, foodTable[foodss.count-1]![foodsMaxWeight]!)
-                
-                maxDistance = max(maxDistance, min(drinksMaxDistanceFirstPart + drinksMaxDistance, foodsMaxDistanceFirstPart + foodsMaxDistance))
-                
-                drinksMaxDistance = 0
-                foodsMaxDistance = 0
-    //            print("drink table: \(drinkTable)")
-    //            print("food table: \(foodTable)")
-                
-            }
+//            for weight in 1..<maxWeightt {
+//                drinksMaxWeight = weight
+//                foodsMaxWeight = maxWeightt - weight
+//                
+//                // [foodOrDrinkNumber[weight:distance]]
+//                var drinkTable: [Int:[Int:Int]] = [0:[:]]
+//                var foodTable: [Int:[Int:Int]] = [0:[:]]
+//                for i in 1...drinksMaxWeight {
+//                    drinkTable[0]![i] = 0
+//                }
+//                for i in 1...foodsMaxWeight {
+//                    foodTable[0]![i] = 0
+//                }
+//                
+//                for drinkN in 1..<drinkss.count {
+//                    drinkTable[drinkN] = [:]
+//                    for w in 1...drinksMaxWeight {
+//                        if w < drinkss[drinkN].weight {
+//                            drinkTable[drinkN]![w] = drinkTable[drinkN - 1]![w]!
+//                        } else {
+//                            drinkTable[drinkN]![w] = max(drinkTable[drinkN - 1]![w]!, (drinkss[drinkN].value + ((drinkTable[drinkN - 1]![w - drinkss[drinkN].weight]) ?? 0)))
+//                        }
+//               
+//                    }
+//                }
+//                
+//                drinksMaxDistance = max(drinksMaxDistance, drinkTable[drinkss.count-1]![drinksMaxWeight]!)
+//                
+//                for foodN in 1..<foodss.count {
+//                    foodTable[foodN] = [:]
+//                    for w in 1...foodsMaxWeight {
+//                        if w < foodss[foodN].weight {
+//                            foodTable[foodN]![w] = foodTable[foodN - 1]![w]!
+//                        } else {
+//                            foodTable[foodN]![w] = max(foodTable[foodN - 1]![w]!, (foodss[foodN].value + ((foodTable[foodN - 1]![w - foodss[foodN].weight]) ?? 0)))
+//                        }
+//                        
+//                    }
+//                }
+//                
+//                foodsMaxDistance = max(foodsMaxDistance, foodTable[foodss.count-1]![foodsMaxWeight]!)
+//                
+//                maxDistance = max(maxDistance, min(drinksMaxDistanceFirstPart + drinksMaxDistance, foodsMaxDistanceFirstPart + foodsMaxDistance))
+//                
+//                drinksMaxDistance = 0
+//                foodsMaxDistance = 0
+//            }
 //        } else {
 //            var weight = maxWeight / 2
 //            var shift = weight
